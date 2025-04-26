@@ -10,88 +10,102 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-
     if (!token) {
       navigate('/connexion');
       return;
     }
-
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
     axios.get('http://localhost:8000/api/user')
       .then(res => {
         setUser(res.data);
         setForm({ name: res.data.name, prenom: res.data.prenom, email: res.data.email });
       })
-      .catch(error => {
-        console.error('Erreur lors de la récupération des informations utilisateur:', error);
+      .catch(() => {
         localStorage.removeItem('token');
         navigate('/connexion');
       });
   }, [navigate]);
 
-  const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
   const handleUpdate = e => {
     e.preventDefault();
     axios.put('http://localhost:8000/api/user/profile', form)
-      .then(res => alert(res.data.message))
-      .catch(error => console.error('Erreur lors de la mise à jour du profil:', error));
+      .then(res => alert(res.data.message));
   };
-
   const handlePasswordChange = e => {
     e.preventDefault();
     axios.put('http://localhost:8000/api/user/change-password', passwordForm)
-      .then(res => alert(res.data.message))
-      .catch(error => console.error('Erreur lors du changement de mot de passe:', error));
+      .then(res => alert(res.data.message));
   };
-
   const handlePhotoUpload = e => {
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append('photo', file);
-
     axios.post('http://localhost:8000/api/user/upload-photo', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(res => {
-        alert(res.data.message);
-        setUser(prevState => ({ ...prevState, profile_photo_path: res.data.photo_url }));
-      })
-      .catch(error => console.error('Erreur lors du téléchargement de la photo:', error));
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(res => {
+      alert(res.data.message);
+      setUser(prev => ({ ...prev, profile_photo_path: res.data.photo_url }));
+    });
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold">Mon Profil</h1>
-
-      {user && (
-        <>
+    <div
+      className="min-h-screen w-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+      }}>
+      <div className=" w-full max-w-4xl h-[550px] flex rounded-3xl overflow-hidden shadow-2xl">
+        <div className="w-1/3 bg-white/30 backdrop-blur-lg flex flex-col items-center py-10 px-4 space-y-6">
           <img
-            src={user.profile_photo_path ? user.profile_photo_path : 'https://via.placeholder.com/150'}
+            src={user?.profile_photo_path || 'https://via.placeholder.com/150'}
             alt="profil"
-            className="w-24 h-24 rounded-full object-cover"
+            className="w-24 h-24 rounded-full object-cover border-4 border-white/60 shadow-md"
           />
           <input type="file" onChange={handlePhotoUpload} className="my-2" />
-
-          <form onSubmit={handleUpdate} className="space-y-2">
-            <input type="text" name="name" value={form.name} onChange={handleChange} className="input" placeholder="Nom" />
-            <input type="text" name="prenom" value={form.prenom} onChange={handleChange} className="input" placeholder="prenom" />
-            <input type="email" name="email" value={form.email} onChange={handleChange} className="input" placeholder="Email" />
-            <button type="submit" className="btn">Mettre à jour</button>
+          <div className="text-center">
+            <h2 className="text-lg font-bold text-gray-800">{user?.name} {user?.prenom}</h2>
+            <p className="text-sm text-gray-600">{user?.email}</p>
+          </div>
+          {/* Navigation (exemple, à personnaliser) */}
+          <nav className="flex flex-col gap-4 mt-8 w-full">
+            <button className="flex items-center gap-3 px-4 py-2 rounded-lg bg-white/40 hover:bg-white/60 transition">
+              <span role="img" aria-label="profile">👤</span>
+              <span className="font-medium text-gray-700">Profil</span>
+            </button>
+            <button className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-white/40 transition">
+              <span role="img" aria-label="settings">⚙️</span>
+              <span className="font-medium text-gray-700">Paramètres</span>
+            </button>
+          </nav>
+        </div>
+        <div className="w-2/3 bg-white/40 backdrop-blur-lg px-10 py-10 flex flex-col justify-center">
+          <h1 className="text-2xl font-bold mb-6 text-gray-800">Mon Profil</h1>
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <input type="text" name="name" value={form.name} onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg bg-white/60 border border-white/40 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Nom" />
+            <input type="text" name="prenom" value={form.prenom} onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg bg-white/60 border border-white/40 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Prénom" />
+            <input type="email" name="email" value={form.email} onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg bg-white/60 border border-white/40 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Email" />
+            <button type="submit"
+              className="w-full py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition">Mettre à jour</button>
           </form>
-
-          <form onSubmit={handlePasswordChange} className="space-y-2 mt-4">
-            <input type="password" name="current_password" placeholder="Mot de passe actuel" onChange={e => setPasswordForm({ ...passwordForm, current_password: e.target.value })} className="input" />
-            <input type="password" name="new_password" placeholder="Nouveau mot de passe" onChange={e => setPasswordForm({ ...passwordForm, new_password: e.target.value })} className="input" />
-            <button type="submit" className="btn">Changer le mot de passe</button>
+          <form onSubmit={handlePasswordChange} className="space-y-4 mt-8">
+            <input type="password" name="current_password" placeholder="Mot de passe actuel"
+              onChange={e => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg bg-white/60 border border-white/40 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            />
+            <input type="password" name="new_password" placeholder="Nouveau mot de passe"
+              onChange={e => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg bg-white/60 border border-white/40 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            />
+            <button type="submit"
+              className="w-full py-2 rounded-lg bg-pink-500 text-white font-semibold hover:bg-pink-600 transition">Changer le mot de passe</button>
           </form>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

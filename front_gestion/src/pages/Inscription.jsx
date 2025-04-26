@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 // Configurez axios pour inclure les credentials
-axios.defaults.withCredentials = true;
-
+axios.defaults.withCredentials = true; 
+ 
 export default function Inscription() {
     const [formData, setFormData] = useState({
         name: '',
@@ -54,6 +54,10 @@ export default function Inscription() {
             );
             console.log('Réponse du serveur:', response.data);
             localStorage.setItem('token', response.data.token);
+            axios.interceptors.request.use(function (config) {
+              config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+              return config;
+            });
             navigate('/Dashboard');
         } catch (error) {
             console.error('Détails de l\'erreur:', error);
@@ -70,8 +74,10 @@ export default function Inscription() {
       <>
         <section
             className="relative w-full h-screen bg-cover bg-center pt-20"
-            style={{ backgroundImage: "url('/images/im.jpg')" }}
+            style={{ backgroundImage: "url('/images/im.jpg')" }} 
         >
+          {/* Formulaire d'inscription - Version modifiée */}
+
             <div
                 className="absolute inset-0"
                 style={{ backgroundColor: "rgba(27, 57, 177, 0.3)" }}
@@ -103,6 +109,7 @@ export default function Inscription() {
                 </div>
 
                 {/* Formulaire d'inscription */}
+                
                 <div className="w-1/3 bg-white bg-opacity-90 p-6 rounded-lg shadow-lg text-gray-900">
                     <div className="flex justify-center gap-6 mb-6 relative">
                         <a
@@ -366,3 +373,6 @@ export default function Inscription() {
       </>
     );
 }
+
+
+

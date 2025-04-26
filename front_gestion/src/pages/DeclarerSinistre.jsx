@@ -1,4 +1,8 @@
 import { useState } from "react";
+import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
+
+axios.defaults.withCredentials = true;
 
 export default function DeclarerSinistre() {
   const [police, setPolice] = useState("");
@@ -10,21 +14,54 @@ export default function DeclarerSinistre() {
   const [documents, setDocuments] = useState([]);
   const [confirmation, setConfirmation] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Logique de soumission ici
-    console.log("Formulaire soumis", {
-      police,
-      typeIncident,
-      dateSinistre,
-      lieuSinistre,
-      description,
-      montantEstime,
-      documents,
-      confirmation,
-    });
-  };
+    console.log('document: ', documents[0]);
+    console.log('document: ', documents[1]);
+    console.log('document: ', documents[2]);
+    
+    const formData = new FormData();
+    formData.append("police", police);
+    formData.append("type_incident", typeIncident);
+    formData.append("date_sinistre", dateSinistre);
+    formData.append("lieu_sinistre", lieuSinistre);
+    formData.append("description", description);
+    formData.append("montant_estime", montantEstime);
+    formData.append("confirmation", confirmation ? "1" : "0");
+    
+    formData.append("documents", documents[0]);
+  
+    // documents.forEach((file, i) => {
+      // formData.append(`documents[]`, file);
+    // });
+  
+    
+    
+    try {
+      const response = await axios.post("http://localhost:8000/api/sinistres", formData);
+      console.log('Data: ', response.data);
+      
+      // {
+      //   withCredentials: true,
 
+      // }
+      // headers: {
+        
+      //   "Content-Type": "multipart/form-data",
+      //   'X-Requested-With': 'XMLHttpRequest',
+      //   'Authorization': `Bearer ${localStorage.getItem('token')}`
+      
+      // },
+  
+      console.log("Réponse reçue :", response.data);
+      alert("Sinistre soumis avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la soumission :", error.response?.data || error.message);
+      alert("Échec de la soumission du sinistre.");
+    }
+  };
+  
+  
   return (
     <div className="bg-gray-100 min-h-screen p-4 mt-10">
       <div className="bg-white rounded-lg shadow p-4 md:p-6 max-w-2xl mx-auto">
@@ -146,9 +183,9 @@ export default function DeclarerSinistre() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                   </svg>
                   <p className="text-xs text-gray-500">Glisser-déposer ou cliquer</p>
-                  <button type="button" className="bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-1 rounded focus:outline-none focus:shadow-outline text-xs mt-2">
+                  {/* <button type="button" className="bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-1 rounded focus:outline-none focus:shadow-outline text-xs mt-2">
                     Soumettre
-                  </button>
+                  </button> */}
                 </div>
                 <input
                   id="file-upload"

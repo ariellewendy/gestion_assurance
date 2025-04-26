@@ -1,1 +1,15 @@
 @import "tailwindcss";
+/* import styles from './MyComponent.module.css'; */
+
+
+@layer utilities {
+    .backdrop-blur-lg {
+      backdrop-filter: blur(16px);
+    }
+    .bg-white\/20 {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+
+  

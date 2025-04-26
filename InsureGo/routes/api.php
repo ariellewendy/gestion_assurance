@@ -9,6 +9,7 @@ use App\Http\Controllers\SinistreController;
 
 
 
+
 // Authentification
 Route::post('/token-login', [AuthController::class, 'login']);
 Route::post('/token-register', [AuthController::class, 'register']);
@@ -30,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function(){
      Route::get('/user', [UserController::class, 'me']);
      Route::put('/user/profile', [UserController::class, 'update']);
      Route::put('/user/change-password', [UserController::class, 'changePassword']);
-     Route::Post('user/upload-photo',[UserController::class,'uploadPhoto']);
+     Route::Post('/user/upload-photo',[UserController::class,'uploadPhoto']);
 });
 
 
@@ -38,18 +39,21 @@ Route::middleware('auth:sanctum')->group(function(){
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/admin/create-agent', [AgentController::class, 'store']);
     Route::put('/admin/change-role/{user}', [UserController::class, 'changeRole']);
-
+    Route::put('/sinistres/{id}', [SinistreController::class, 'update']);
+    Route::delete('/sinistres/{id}', [SinistreController::class, 'destroy']);
 });
 
 
 //Contrats d'assurance
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/contrats', [ContratAssuranceController::class, 'store']);
-    Route::get('/contrats', [ContratAssuranceController::class, 'index']);
     Route::get('/contrats/{id}', [ContratAssuranceController::class, 'show']);
     Route::put('/contrats/{id}', [ContratAssuranceController::class, 'update']);
     Route::delete('/contrats/{id}', [ContratAssuranceController::class, 'destroy']);
+    Route::get('/mes-contrats', [ContratController::class, 'mesContrats']);
+
 });
+
+
 
 // Sinistres
 Route::middleware('auth:sanctum')->group(function () {
@@ -58,9 +62,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sinistres/{id}', [SinistreController::class, 'show']);
 });
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::put('/sinistres/{id}', [SinistreController::class, 'update']);
-    Route::delete('/sinistres/{id}', [SinistreController::class, 'destroy']);
+
+// Routes réservées à l’agent
+Route::middleware(['auth:sanctum', 'role:agent'])->group(function () {
+    Route::post('/contrats', [ContratAssuranceController::class, 'store']);
+    Route::get('/contrats', [ContratAssuranceController::class, 'index']);
+
 });
 
 

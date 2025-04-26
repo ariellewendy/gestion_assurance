@@ -11,6 +11,12 @@ import DetailsPoliceAssurance from './pages/DetailsPoliceAssurance';
 import ProfilePage from './pages/ProfilePage';
 import ContratForm from './pages/agent/ContractForm';
 import DashboardAgent from './pages/agent/Dashboard_agent';
+import CreateAgentForm from './pages/admin/CreateAgentForm';
+import DashboardAdmin from './pages/admin/DashboardAdmin';
+
+
+
+
 
 
 
@@ -32,6 +38,11 @@ const App = () => {
 <Route path="/ProfilePage" element={<ProfilePage />} />
 <Route path="/contrat/create" element={<ContratForm />} />
 <Route path="/Dashboard_agent" element={<DashboardAgent />} />
+<Route path="/CreateAgentForm" element={<CreateAgentForm/>} />
+<Route path="/DashboardAdmin" element={<DashboardAdmin/>} />
+
+
+
 
 
 

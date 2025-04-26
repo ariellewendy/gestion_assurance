@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 const ContratForm = () => {
     const [formData, setFormData] = useState({
-        numero_police: '',
         type_assurance: '',
         date_effet: '',
         date_expiration: '',
@@ -50,7 +49,7 @@ const ContratForm = () => {
                 }
             );
             console.log('Réponse du serveur:', response.data);
-            navigate('/dashboard');
+            navigate('/Dashboard_agent');
         } catch (error) {
             console.error('Détails de l\'erreur:', error);
             console.error('Réponse d\'erreur:', error.response);
@@ -68,17 +67,7 @@ const ContratForm = () => {
                 </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="numero_police" className="block text-sm font-medium text-gray-700">Numéro de police</label>
-                    <input
-                        type="text"
-                        name="numero_police"
-                        id="numero_police"
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                </div>
+              
                 <div>
                     <label htmlFor="type_assurance" className="block text-sm font-medium text-gray-700">Type d'assurance</label>
                     <select
