@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'agent_id', 
        
     ];
 
@@ -50,4 +51,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function contrats()
+{
+    return $this->hasMany(ContratAssurance::class);
+}
+
+public function clients()
+{
+    return $this->hasMany(User::class, 'agent_id');
+}
+
 }

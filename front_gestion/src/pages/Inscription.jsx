@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
-// Configurez axios pour inclure les credentials
+import api from '../api';
+ 
 axios.defaults.withCredentials = true; 
  
 export default function Inscription() {
@@ -17,12 +17,11 @@ export default function Inscription() {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        // Pré-récupérer le cookie CSRF
         const fetchCsrfToken = async () => {
             try {
-              axios.defaults.withCredentials = true;
-              axios.defaults.withXSRFToken = true;
-              await axios.get('http://localhost:8000/sanctum/csrf-cookie');
+              // axios.defaults.withCredentials = true;
+              // axios.defaults.withXSRFToken = true;
+              await api.get('http://localhost:8000/sanctum/csrf-cookie');
               console.log('Cookie CSRF récupéré avec succès');
             } catch (error) {
                 console.error('Erreur lors de la récupération du cookie CSRF:', error);
@@ -30,7 +29,7 @@ export default function Inscription() {
         };
 
         fetchCsrfToken();
-    }, []);
+      }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,23 +40,12 @@ export default function Inscription() {
         setIsLoading(true);
         try {
             console.log('Envoi des données:', formData);
-            const response = await axios.post(
-                'http://localhost:8000/api/token-register', 
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                }
+            const response = await axios.post('http://localhost:8000/api/token-register', 
+              formData
             );
+            
             console.log('Réponse du serveur:', response.data);
             localStorage.setItem('token', response.data.token);
-            axios.interceptors.request.use(function (config) {
-              config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
-              return config;
-            });
             navigate('/Dashboard');
         } catch (error) {
             console.error('Détails de l\'erreur:', error);
@@ -68,7 +56,6 @@ export default function Inscription() {
         }
     };
 
-    // Le reste du composant reste inchangé...
 
     return (
       <>
@@ -76,7 +63,6 @@ export default function Inscription() {
             className="relative w-full h-screen bg-cover bg-center pt-20"
             style={{ backgroundImage: "url('/images/im.jpg')" }} 
         >
-          {/* Formulaire d'inscription - Version modifiée */}
 
             <div
                 className="absolute inset-0"

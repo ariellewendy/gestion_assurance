@@ -30,4 +30,7 @@ class AgentController extends Controller
         ]);
         return response()->json(['message'=>'agent cree avec succes.','agent'=>$agent]);
     }
+
+
+    
 }

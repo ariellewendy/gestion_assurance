@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Models\User;
 
 use App\Models\ContratAssurance;
 use Illuminate\Http\Request;
@@ -8,20 +9,46 @@ use Illuminate\Support\Facades\Validator;
 
 class ContratAssuranceController extends Controller
 {
+    // public function index()
+    // {
+    //     if (Auth::user()->hasRole('admin')) {
+    //         $contrats = ContratAssurance::all();
+    //     } elseif (Auth::user()->hasRole('agent')) {
+    //         $contrats = ContratAssurance::where('user_id', Auth::id())->get();
+    //     } else {
+    //         $contrats = ContratAssurance::where('client_id', Auth::id())->get();
+    //     }
+        
+    //     return response()->json(['data' => $contrats], 200);
+    // }
+    
     public function index()
     {
-        $contrats = ContratAssurance::where('user_id', Auth::id())->get();
+        $user = Auth::user();
+    
+        if ($user->can('view-all-contracts')) {
+            $contrats = ContratAssurance::all();
+        } elseif ($user->can('view-own-contracts')) {
+            $contrats = ContratAssurance::where('user_id', $user->id)->get();
+        } else {
+            return response()->json(['message' => 'Non autorisé.'], 403);
+        }
+    
         return response()->json(['data' => $contrats], 200);
     }
+    
+
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+
             'type_assurance' => 'required|string',
             'date_effet' => 'required|date',
-            'date_expiration' => 'required|date',
+            'date_expiration' => 'required|date|after_or_equal:date_effet',
             'description' => 'nullable|string',
             'prime' => 'required|numeric',
+            'client_id' => 'required|exists:users,id',
             'status' => 'nullable|string',
             'details' => 'nullable|array',
         ]);
@@ -29,13 +56,17 @@ class ContratAssuranceController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+        $validatedData = $validator->validated();
+        $user = User::find($validatedData['client_id']); 
 
-        // Génération du numéro de police automatique
+        if ($user->role !== 'client') {
+            return response()->json(['message' => 'Cet utilisateur n\'est pas un client valide.'], 400);
+        }
+
         $numero_police = $this->genererNumeroPolice($request->type_assurance);
 
-        // Création du contrat
         $contrat = ContratAssurance::create([
-            'user_id' => Auth::id(),
+            'user_id' => $request->client_id,
             'numero_police' => $numero_police,
             'type_assurance' => strtolower($request->type_assurance),
             'date_effet' => $request->date_effet,
@@ -122,9 +153,11 @@ class ContratAssuranceController extends Controller
   
 public function mesContrats(Request $request)
 {
-    $user = $request->user(); // récupère l'utilisateur connecté
-    $contrats = Contrat::where('client_id', $user->id)->get();
+    $user = $request->user();
+    $contrats = ContratAssurance::where('client_id', $user->id)->get();
 
     return response()->json($contrats);
 }
 }
+
+

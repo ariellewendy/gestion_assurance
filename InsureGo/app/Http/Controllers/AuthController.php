@@ -32,15 +32,14 @@ class AuthController extends Controller
             return response()->json(['message' => 'Vous n’êtes pas autorisé à vous connecter.'], 403);
         }
         
-        // Création du token
         $token = $user->createToken('api-token')->plainTextToken;
 
-        // Réponse JSON avec token et données utilisateur
         return response()->json([
             'token' => $token,
             'user' => $user,
         ]);
     }
+
 
     public function register(Request $request)
     {
@@ -52,23 +51,30 @@ class AuthController extends Controller
             'password' => [
                 'required',
                 'string',
-                'regex:/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/', // Min. 8 caractères, au moins une majuscule et un chiffre
+                'regex:/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/', 
             ],
         ]);
 
-        // Création du nouvel utilisateur
+
+
+        
+            // Trouver l’agent avec le moins de clients
+            $agent = User::where('role', 'agent')
+            ->withCount('clients')
+            ->orderBy('clients_count', 'asc')
+            ->first();
+
         $user = User::create([
             'name' => $request->name,
             'prenom' => $request->prenom,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'client',
+            'agent_id' => $agent ? $agent->id : null,  
         ]);
 
-        // Création du token
         $token = $user->createToken('api-token')->plainTextToken;
 
-        // Réponse JSON
         return response()->json([
             'message' => 'Inscription réussie.',
             'token' => $token,

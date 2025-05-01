@@ -14,44 +14,74 @@ export default function DeclarerSinistre() {
   const [documents, setDocuments] = useState([]);
   const [confirmation, setConfirmation] = useState(false);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   console.log('document: ', documents[0]);
+  //   console.log('document: ', documents[1]);
+  //   console.log('document: ', documents[2]);
+    
+  //   const formData = new FormData();
+  //   formData.append('police', police);
+  //   formData.append('typeIncident', typeIncident);
+  //   formData.append('dateSinistre', dateSinistre);
+  //   formData.append('lieuSinistre', lieuSinistre);
+  //   formData.append('description', description);
+  //   formData.append('montantEstime', montantEstime);
+  //   formData.append("confirmation", confirmation ? "1" : "0");
+    
+  //   // formData.append("documents", documents[0]);
+
+  //   await axios.post("http://localhost:8000/api/sinistres", formData, {
+  //     headers: {
+  //       "Content-Type": "multipart/form-data",
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   });
+
+  //   documents.forEach((file, i) => {
+  //     formData.append(`documents[]`, file);
+  //   });
+  
+    
+    
+  //   try {
+  //     const response = await axios.post("http://localhost:8000/api/sinistres", formData);
+  //     console.log('Data: ', response.data);
+    
+  
+  //     console.log("Réponse reçue :", response.data);
+  //     alert("Sinistre soumis avec succès !");
+  //   } catch (error) {
+  //     console.error("Erreur lors de la soumission :", error.response?.data || error.message);
+  //     alert("Échec de la soumission du sinistre.");
+  //   }
+  // };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('document: ', documents[0]);
-    console.log('document: ', documents[1]);
-    console.log('document: ', documents[2]);
-    
+  
     const formData = new FormData();
-    formData.append("police", police);
-    formData.append("type_incident", typeIncident);
-    formData.append("date_sinistre", dateSinistre);
-    formData.append("lieu_sinistre", lieuSinistre);
-    formData.append("description", description);
-    formData.append("montant_estime", montantEstime);
+    formData.append('police', police);
+    formData.append('typeIncident', typeIncident);
+    formData.append('dateSinistre', dateSinistre);
+    formData.append('lieuSinistre', lieuSinistre);
+    formData.append('description', description);
+    formData.append('montantEstime', montantEstime);
     formData.append("confirmation", confirmation ? "1" : "0");
-    
-    formData.append("documents", documents[0]);
   
-    // documents.forEach((file, i) => {
-      // formData.append(`documents[]`, file);
-    // });
+    documents.forEach((file) => {
+      formData.append('documents[]', file);
+    });
   
-    
-    
     try {
-      const response = await axios.post("http://localhost:8000/api/sinistres", formData);
-      console.log('Data: ', response.data);
-      
-      // {
-      //   withCredentials: true,
-
-      // }
-      // headers: {
-        
-      //   "Content-Type": "multipart/form-data",
-      //   'X-Requested-With': 'XMLHttpRequest',
-      //   'Authorization': `Bearer ${localStorage.getItem('token')}`
-      
-      // },
+      const token = localStorage.getItem('token');
+  
+      const response = await axios.post("http://localhost:8000/api/sinistres", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,  
+        },
+      });
   
       console.log("Réponse reçue :", response.data);
       alert("Sinistre soumis avec succès !");
@@ -60,6 +90,8 @@ export default function DeclarerSinistre() {
       alert("Échec de la soumission du sinistre.");
     }
   };
+  
+
   
   
   return (

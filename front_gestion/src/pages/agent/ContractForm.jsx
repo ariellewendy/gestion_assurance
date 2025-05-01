@@ -1,63 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+    import React, { useState, useEffect } from 'react';
+    import axios from 'axios';
+    import { useParams, useNavigate } from 'react-router-dom';
+    
+    const ContratForm = () => {
+        const { clientId } = useParams(); 
+        const [formData, setFormData] = useState({
+            type_assurance: '',
+            date_effet: '',
+            date_expiration: '',
+            description: '',
+            prime: '',
+            client_id: clientId ,
+        });
 
-const ContratForm = () => {
-    const [formData, setFormData] = useState({
-        type_assurance: '',
-        date_effet: '',
-        date_expiration: '',
-        description: '',
-        prime: '',
-        details: {}
-    });
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const [csrfToken, setCsrfToken] = useState('');
-
-    useEffect(() => {
-        const fetchCsrfToken = async () => {
+        const [error, setError] = useState('');
+        const navigate = useNavigate();
+    
+        useEffect(() => {
+            const fetchCsrfToken = async () => {
+                try {
+                    const response = await axios.get('http://localhost:8000/sanctum/csrf-cookie');
+                } catch (error) {
+                    console.error('Erreur lors de la récupération du jeton CSRF:', error);
+                }
+            };
+    
+            fetchCsrfToken();
+        }, []);
+    
+        const handleChange = (e) => {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        };
+    
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("token");
+    
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
             try {
-                const response = await axios.get('http://localhost:8000/sanctum/csrf-cookie');
-                setCsrfToken(response.data);
+                await axios.get('http://localhost:8000/sanctum/csrf-cookie', { withCredentials: true });
+                const response = await axios.post('http://localhost:8000/api/contrats', formData, { withCredentials: true });
+                
+                console.log('Réponse du serveur:', response.data);
+                navigate('/Dashboard_agent');
             } catch (error) {
-                console.error('Erreur lors de la récupération du jeton CSRF:', error);
+                console.error('Détails de l\'erreur:', error);
+                setError(error.response?.data?.message || 'Erreur lors de la création du contrat.');
             }
         };
 
-        fetchCsrfToken();
-    }, []);
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-
-    const handleSubmit = async (e) => {
-        const token=localStorage.getItem("token");
-
-
-        e.preventDefault();
-        axios.defaults.headers.common["Authorization"]=`Bearer ${token}`;
-        try {
-            await axios.get('http://localhost:8000/sanctum/csrf-cookie', { withCredentials: true }); 
-            const response = await axios.post(
-                'http://localhost:8000/api/contrats',
-                formData,
-                {
-                    withCredentials: true, 
-                }
-            );
-            console.log('Réponse du serveur:', response.data);
-            navigate('/Dashboard_agent');
-        } catch (error) {
-            console.error('Détails de l\'erreur:', error);
-            console.error('Réponse d\'erreur:', error.response);
-            setError(error.response?.data?.message || 'Erreur lors de la création du contrat.');
-
-        }
-    };
-    
     return (
         <div className="max-w-3xl mx-auto p-4 space-y-6">
             <h1 className="text-2xl font-bold">Créer un contrat d'assurance</h1>
@@ -67,6 +59,7 @@ const ContratForm = () => {
                 </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
+
               
                 <div>
                     <label htmlFor="type_assurance" className="block text-sm font-medium text-gray-700">Type d'assurance</label>

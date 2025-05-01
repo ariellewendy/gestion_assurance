@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('contract_assurance', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('numero_police')->unique();
             $table->string('type_assurance');
             $table->date('date_effet');

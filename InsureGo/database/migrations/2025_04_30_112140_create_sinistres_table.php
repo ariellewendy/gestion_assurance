@@ -24,7 +24,6 @@ return new class extends Migration
             $table->json('documents')->nullable(); 
             $table->boolean('confirmation'); 
           
-            $table->text('description');
 
             $table->timestamps();
 
@@ -38,3 +37,5 @@ return new class extends Migration
         Schema::dropIfExists('sinistres');
     }
 };
+
+

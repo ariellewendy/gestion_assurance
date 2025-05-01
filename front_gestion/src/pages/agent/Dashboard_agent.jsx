@@ -1,158 +1,116 @@
-import React from "react";
-import { CircleAlert, Info, AlertTriangle, FileText, CheckCircle, Calendar } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import api from "../../api";
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import Sidebar from "../../components/agent/Sidebar";
+import Navbar from "../../components/agent/Navbar";
+import StatCard from "../../components/agent/StatCard";
+import { FileText, CheckCircle, User } from "lucide-react";
 
-export default function DashboardAgent() {
-    const navigate = useNavigate();
-    const [polices, setPolices] = React.useState([]);
-    const [notifications, setNotifications] = React.useState([]);
+const DashboardAgent = () => {
+  const navigate = useNavigate(); 
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [user, setUser] = useState(null);
+  const [stats, setStats] = useState({ totalPolices: 0, totalSinistres: 0, nombreClients: 0 });
+  const [polices, setPolices] = useState([]);
+  const [filteredPolices, setFilteredPolices] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
-    React.useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/connexion');
-            return;
-        }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userRes, statsRes, policesRes] = await Promise.all([
+         await axios.get("/api/user", { withCredentials: true, headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        }}),
+         await axios.get("/api/dashboard-agent", { withCredentials: true, headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        } }),
+         await axiox.get("/api/mes-polices", { withCredentials: true, headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        } }),
 
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        ]);
+        setUser(userRes.data);
+        setStats(statsRes.data);
+        setPolices(policesRes.data);
+        setFilteredPolices(policesRes.data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données :", error);
+      }
+    };
+    fetchData();
+  }, []);
 
-        const fetchPolices = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/contrats');
-                setPolices(response.data.data);
-            } catch (error) {
-                console.error('Erreur lors de la récupération des polices:', error);
-            }
-        };
-
-        const fetchNotifications = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/notifications');
-                setNotifications(response.data.data);
-            } catch (error) {
-                console.error('Erreur lors de la récupération des notifications:', error);
-            }
-        };
-
-        fetchPolices();
-        fetchNotifications();
-    }, [navigate]);
-
-    return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-100 via-white to-white p-18">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-blue-900 mb-6">Tableau de bord</h1>
-                    <p className="text-sm text-gray-600">Bienvenue sur votre espace personne</p>
-                </div>
-                <div>
-                    <button
-                        onClick={() => navigate("/DeclarerSinistre")}
-                        className="flex items-center bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition mr-4"
-                    >
-                        <AlertTriangle className="mr-2" size={20} />
-                        Declarer un sinistre
-                    </button>
-                    <button
-                        onClick={() => navigate("/profile")}
-                        className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 transition"
-                    >
-                        Mon Profil
-                    </button>
-                    <button
-                        onClick={() => navigate("/contrat/create")}
-                        className="bg-green-200 px-4 py-2 rounded hover:bg-green-300 transition"
-                    >
-                        Nouveau Contrat
-                    </button>
-                </div>
-            </div>
-
-            {/* Stat Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="flex items-center bg-blue-600 text-white rounded-lg p-4">
-                    <FileText className="mr-4" size={32} />
-                    <div>
-                        <div className="text-2xl font-bold">{polices.length}</div>
-                        <div className="text-sm">Total polices actives</div>
-                    </div>
-                </div>
-                <div className="flex items-center bg-green-600 text-white rounded-lg p-4">
-                    <CheckCircle className="mr-4" size={32} />
-                    <div>
-                        <div className="text-2xl font-bold">3</div>
-                        <div className="text-sm">Total sinistres</div>
-                    </div>
-                </div>
-                <div className="flex items-center bg-orange-500 text-white rounded-lg p-4">
-                    <Calendar className="mr-4" size={32} />
-                    <div>
-                        <div className="text-2xl font-bold">16 novembre 2025</div>
-                        <div className="text-sm">Prochaine echeance</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Table */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Mes Polices d'Activites</h2>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm text-gray-700">
-                        <thead>
-                            <tr className="bg-gray-100">
-                                <th className="px-4 py-2 text-left">TYPE</th>
-                                <th className="px-4 py-2 text-left">NUMERO DE POLICE</th>
-                                <th className="px-4 py-2 text-left">DATE D'EFFET</th>
-                                <th className="px-4 py-2 text-left">DATE D'EXPIRATION</th>
-                                <th className="px-4 py-2 text-left">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {polices.map(police => (
-                                <tr key={police.id} className="border-b">
-                                    <td className="px-4 py-2">{police.type_assurance}</td>
-                                    <td className="px-4 py-2">{police.numero_police}</td>
-                                    <td className="px-4 py-2">{police.date_effet}</td>
-                                    <td className="px-4 py-2">{police.date_expiration}</td>
-                                    <td className="px-4 py-2">
-                                        <button className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition">
-                                            Voir les details
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className="mt-4">
-                    <button className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 transition ">
-                        Voir toutes les polices
-                    </button>
-                </div>
-            </div>
-
-            <div className="space-y-8 mt-10">
-                {/* Notifications */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="font-semibold text-lg mb-3 border-b pb-2">Notifications</h2>
-                    <div className="space-y-3">
-                        {notifications.map(notification => (
-                            <div key={notification.id} className="flex items-start bg-yellow-100 rounded p-3 border border-yellow-200">
-                                <CircleAlert className="text-yellow-500 mt-1 mr-3" size={22} />
-                                <div>
-                                    <div className="font-semibold text-yellow-800">{notification.type}</div>
-                                    <div className="text-sm text-yellow-900">
-                                        {notification.message}
-                                    </div>
-                                    <div className="text-xs text-gray-500 mt-1">{notification.date}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
+  useEffect(() => {
+    const filtered = polices.filter((police) =>
+      police.numero_police.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      police.type.toLowerCase().includes(searchQuery.toLowerCase())
     );
-}
+    setFilteredPolices(filtered);
+  }, [searchQuery, polices]);
+
+  const handleLogout = () => {
+    api.post("/logout", {}, { withCredentials: true })
+      .then(() => navigate("/login"))
+      .catch((err) => console.error("Erreur de déconnexion", err));
+  };
+
+  return (
+    <div className="flex h-screen bg-gradient-to-br from-blue-100/80 via-white/70 to-pink-50/80">
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} user={user} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <main className="flex-1 overflow-auto p-6">
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <StatCard title="Nombre de clients" value={stats.nombreClients} icon={<User size={24} />} bgColor="blue-100" />
+            <StatCard title="Total polices actives" value={stats.totalPolices} icon={<FileText size={24} />} bgColor="green-100" />
+            <StatCard title="Total sinistres" value={stats.totalSinistres} icon={<CheckCircle size={24} />} bgColor="orange-100" />
+          </section>
+
+          <section className="bg-white/70 backdrop-blur-md border border-gray-100/50 rounded-xl shadow-sm p-6 mb-8">
+            <input 
+              type="text" 
+              placeholder="Rechercher une police..." 
+              className="p-2 mb-4 w-full border border-gray-300 rounded-md"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <table className="min-w-full text-sm text-gray-700">
+              <thead className="bg-gray-50/80">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">TYPE</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">NUMÉRO DE POLICE</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">DATE D'EFFET</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">DATE D'EXPIRATION</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPolices.length > 0 ? (
+                  filteredPolices.map((police, index) => (
+                    <tr key={index} className={`border-b ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}>
+                      <td className="px-4 py-3">{police.type}</td>
+                      <td className="px-4 py-3">{police.numero_police}</td>
+                      <td className="px-4 py-3">{police.date_effet}</td>
+                      <td className="px-4 py-3">{police.date_expiration}</td>
+                      <td className="px-4 py-3">
+                        <a href={`/police/${police.id}`} className="text-blue-600 hover:underline">Voir</a>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-4 py-4 text-center text-gray-500">Aucune police disponible.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardAgent;

@@ -6,6 +6,8 @@ use App\Http\Controllers\AgentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ContratAssuranceController;
 use App\Http\Controllers\SinistreController;
+use App\Http\Controllers\DashboardAgentController;
+
 
 
 
@@ -13,13 +15,7 @@ use App\Http\Controllers\SinistreController;
 // Authentification
 Route::post('/token-login', [AuthController::class, 'login']);
 Route::post('/token-register', [AuthController::class, 'register']);
-// Route::post('/token-register', function (Request $request) {
-//     return response()->json([
-//         'headers' => $request->headers->all(),
-//         'cookies' => $request->cookies->all(),
-//         'body' => $request->all(),
-//     ]);
-// });
+
 
 Route::get('/test-csrf', function () {
     return response()->json(['message' => 'CSRF test']);
@@ -49,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/contrats/{id}', [ContratAssuranceController::class, 'show']);
     Route::put('/contrats/{id}', [ContratAssuranceController::class, 'update']);
     Route::delete('/contrats/{id}', [ContratAssuranceController::class, 'destroy']);
-    Route::get('/mes-contrats', [ContratController::class, 'mesContrats']);
+    Route::get('/mes-contrats', [ContratAssuranceController::class, 'mesContrats']);
 
 });
 
@@ -66,11 +62,16 @@ Route::middleware('auth:sanctum')->group(function () {
 // Routes réservées à l’agent
 Route::middleware(['auth:sanctum', 'role:agent'])->group(function () {
     Route::post('/contrats', [ContratAssuranceController::class, 'store']);
-    Route::get('/contrats', [ContratAssuranceController::class, 'index']);
+    Route::get('/contrats', [ContratAssuranceControaller::class, 'index']);
 
 });
+Route::middleware(['auth:sanctum'])->get('/dashboard-agent', [DashboardAgentController::class, 'index']);
 
 
-Route::get('/api/test-connection', function () {
-    return response()->json(['message' => 'Connexion OK']);
-});
+Route::middleware('auth:sanctum')->get('/clients', [UserController::class, 'getClients']);
+Route::middleware('auth:sanctum')->get('/all-clients', [UserController::class, 'getAllClients']);
+
+
+
+
+

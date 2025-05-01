@@ -10,37 +10,35 @@ class SinistreController extends Controller
 {
     public function store(Request $request)
     {
-        return response()->json($request);
-        // $request->validate([
-        //     'police' => 'required|string',
-        //     'typeIncident' => 'required|string',
-        //     'dateSinistre' => 'required|date',
-        //     'lieuSinistre' => 'required|string',
-        //     'description' => 'required|string',
-        //     'montantEstime' => 'required|numeric',
-        //     'documents.*' => 'nullable|file|max:2048',
-        //     'confirmation' => 'required|boolean',
-        // ]);
+        $request->validate([
+            'police' => 'required|string',
+            'typeIncident' => 'required|string',
+            'dateSinistre' => 'required|date',
+            'lieuSinistre' => 'required|string',
+            'description' => 'required|string',
+            'montantEstime' => 'required|numeric',
+            'documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'confirmation' => 'required|boolean',
+        ]);
 
-        $files = [];
+        $documentPaths = [];
+
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $file) {
                 $path = $file->store('sinistres/documents', 'public');
-                $files[] = $path;
+                $documentPaths[] = $path;
             }
         }
-        return response()->json($files);
-        
 
         $sinistre = Sinistre::create([
-            'user_id' => Auth::id(),
+            'user_id' => Auth::id(), 
             'police' => $request->police,
             'type_incident' => $request->typeIncident,
             'date_sinistre' => $request->dateSinistre,
             'lieu_sinistre' => $request->lieuSinistre,
             'description' => $request->description,
             'montant_estime' => $request->montantEstime,
-            'documents' => $files,
+            'documents' => json_encode($documentPaths), 
             'confirmation' => $request->confirmation,
         ]);
 

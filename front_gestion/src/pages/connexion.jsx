@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import api from '../api';
+ 
 const Connexion = () => {
     const [formData, setFormData] = useState({
         email: '',
@@ -14,9 +15,9 @@ const Connexion = () => {
     useEffect(() => {
         const fetchCsrfToken = async () => {
             try {
-                axios.defaults.withCredentials = true;
-                axios.defaults.withXSRFToken = true;
-                await axios.get('http://localhost:8000/sanctum/csrf-cookie');
+                // axios.defaults.withCredentials = true;
+                // axios.defaults.withXSRFToken = true;
+                await api.get('http://localhost:8000/sanctum/csrf-cookie');
             } catch (error) {
                 console.error('Erreur lors de la récupération du jeton CSRF:', error);
             }
@@ -29,33 +30,64 @@ const Connexion = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         const response = await api.post('http://localhost:8000/api/token-login', formData);
+    //         console.log('Réponse du serveur:', response.data);
+    //         localStorage.setItem('token', response.data.token);
+
+    //         localStorage.setItem('role', response.data.role);
+
+
+
+    // const role = response.data.role;
+
+    // if (user.role === 'admin') {
+    //     navigate('admin/dashboard');
+    //   } else if (user.role === 'agent') {
+    //     navigate('/agent/dashboard');
+    //   } else if (user.role === 'client') {
+    //     navigate('/client/dashboard');
+    //   } else {
+    //     console.error('Rôle non reconnu');
+    //   }
+
+
+
+    //       } catch (error) {
+    //         setError(error.response?.data?.message || 'Erreur lors de la connexion.');
+    //     }
+      
+    // };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/api/token-login', formData);
+            const response = await api.post('http://localhost:8000/api/token-login', formData);
             console.log('Réponse du serveur:', response.data);
+    
             localStorage.setItem('token', response.data.token);
-
-            // Stocker le rôle récupéré dans le localStorage
-            localStorage.setItem('role', response.data.role);
-
-            axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-
-
-            const role = response.data.role;
+            localStorage.setItem('role', response.data.user.role); 
+    
+            const role = response.data.user.role;
+    
             if (role === 'admin') {
-                navigate('/pages/admin/DashboardAdmin');
+                navigate('/admin/dashboard');
             } else if (role === 'agent') {
-                navigate('/pages/agent/Dashboard_agent');
+                navigate('/agent/dashboard');
+            } else if (role === 'client') {
+                navigate('/Dashboard');
             } else {
-                navigate('/DashboArd');
+                console.error('Rôle non reconnu');
             }
-
         } catch (error) {
+            console.error(error);
             setError(error.response?.data?.message || 'Erreur lors de la connexion.');
         }
     };
-
+    
     return (
         <>
             <section
@@ -149,17 +181,11 @@ const Connexion = () => {
 
                             {/* Mot de passe oublié */}
                             <div className="flex items-center space-x-2">
-                                <input
-                                    name="forgot"
-                                    type="checkbox"
-                                    id="forgot"
-                                    className="accent-orange-500"
-                                />
-                                <label htmlFor="forgot" className="text-sm text-gray-700">
-                                    Mot de passe oublié ?
-                                </label>
+                               
+                            <a href="/mot-de-passe-oublie" className="text-sm text-blue-600 hover:underline">Mot de passe oublié ?
+</a>
+                                
                             </div>
-
                             {/* Bouton */}
                             <button
                                 type="submit"

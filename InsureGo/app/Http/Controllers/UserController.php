@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 use  Illuminate\Support\Facades\Validator;
@@ -36,7 +37,7 @@ class UserController extends Controller{
     }
 
     public function changeRole(Request $request, $id){
-        $user=\App\Models\User::finfdOrfail($id);
+        $user = \App\Models\User::findOrFail($id);
 
         $validated=$request->Validate([
             'role'=>'required|in:client,agent,admin',
@@ -64,9 +65,9 @@ class UserController extends Controller{
 
         $user=$request->user();
         if(!Hash::check($request->current_password, $user->password)){
-            response()->json(['message'=>'mot de passe actuel incorrect',403]);
+            return response()->json(['message'=>'Mot de passe actuel incorrect'], 403);
         }
-
+        
             $user->password = Hash::make($request->new_password);
     $user->save();
 
@@ -76,7 +77,8 @@ class UserController extends Controller{
 
     public function uploadPhoto(Request $request){
         $request->validate([
-            'photo'=>'requied|image|max:2048', //max:2MB
+            'photo' => 'required|image|max:2048',
+
         ]);
 
         $user=$request->user();
@@ -90,4 +92,43 @@ class UserController extends Controller{
           'photo_url'=>asset('storage/'. $path),
         ]);
     }
+
+
+
+
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+    }
+
+    public function getClients(Request $request)
+    {
+        $user = $request->user(); 
+        if (!$user) {
+            return response()->json(['error' => 'Agent non authentifié'], 401);
+        }
+        $clients = User::where('role', 'client')
+                        ->where('agent_id', $user->id)
+                        ->get();
+
+                        
+    if ($clients->isEmpty()) {
+        return response()->json(['message' => 'Aucun client trouvé'], 404);
+    }
+        return response()->json($clients);
+    }
+
+
+    public function getAllClients()
+{
+    $clients = User::where('role', 'client')->get();
+
+    return response()->json($clients);
+}
+
+
+
+
+
+
 }
