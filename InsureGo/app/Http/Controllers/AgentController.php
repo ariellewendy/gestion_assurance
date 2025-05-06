@@ -31,6 +31,24 @@ class AgentController extends Controller
         return response()->json(['message'=>'agent cree avec succes.','agent'=>$agent]);
     }
 
-
+    // public function dashboard()
+    // {
+       
+    //     $agent = auth()->user();
+    
+      
+    //     $contracts = Contract::where('user_id', $agent->id)->get();
+    
+   
+    //     $contractCount = $contracts->count();
+    
+  
+    //     $clientCount = Contract::where('user_id', $agent->id)
+    //                            ->distinct('client_id')
+    //                            ->count('client_id');
+    
+    //     return view('agent.dashboard', compact('contracts', 'contractCount', 'clientCount'));
+    // }
+    
     
 }

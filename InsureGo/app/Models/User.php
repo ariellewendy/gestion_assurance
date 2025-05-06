@@ -62,4 +62,9 @@ public function clients()
     return $this->hasMany(User::class, 'agent_id');
 }
 
+public function sinistres()
+{
+    return $this->hasMany(Sinistre::class);
+}
+
 }

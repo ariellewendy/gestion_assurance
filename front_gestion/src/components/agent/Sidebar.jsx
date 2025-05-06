@@ -1,4 +1,4 @@
-import { Menu, Home, Users, Settings, LogOut, User } from "lucide-react";
+import { Menu,AlertTriangle, Home, Users, Settings, LogOut, User } from "lucide-react";
 import NavLink from "./NavLink";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
@@ -17,9 +17,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
       <nav className="p-4 flex-1">
         <div className="space-y-2">
           {sidebarOpen && <div className="text-xs font-semibold text-gray-400 uppercase mb-4">Home</div>}
-          <NavLink to="/" icon={<Home size={20} />} label="Tableau de bord" sidebarOpen={sidebarOpen} />
+          <NavLink to="/agent/dashboard" icon={<Home size={20} />} label="Tableau de bord" sidebarOpen={sidebarOpen} />
           <NavLink to="/clientliste" icon={<Users size={20} />} label="Mes clients" sidebarOpen={sidebarOpen} />
           <NavLink to="#" icon={<Settings size={20} />} label="Paramètres" sidebarOpen={sidebarOpen} />
+          <NavLink to="/sinistres-agent" icon={<AlertTriangle size={20} />} label="Sinistres" sidebarOpen={sidebarOpen} />
+      
+
         </div>
       </nav>
 

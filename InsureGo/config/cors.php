@@ -1,6 +1,6 @@
 <?php
 
-return [
+return [ 
 
 // 'paths' => ['api/*', 'token-register','token-login', 'logout', 'sanctum/csrf-cookie'],
 'paths' => ['api/*', 'sanctum/csrf-cookie'],

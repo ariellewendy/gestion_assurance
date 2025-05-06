@@ -1,5 +1,5 @@
 <?php
- 
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContratAssurance extends Model
 {
-    protected $table = 'contract_assurance';
     use HasFactory;
+
+    protected $table = 'contract_assurance';
 
     protected $fillable = [
         'user_id',
@@ -20,15 +21,23 @@ class ContratAssurance extends Model
         'prime',
         'status',
         'details',
+        'client_id',
     ];
 
     protected $casts = [
         'details' => 'array',
     ];
 
-    public function user()
+
+    public function client()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'client_id');
+    }
+ 
+
+    public function agent()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function sinistres()

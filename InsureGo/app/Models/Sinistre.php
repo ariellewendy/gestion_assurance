@@ -18,6 +18,9 @@ class Sinistre extends Model
         'montant_estime',
         'documents',
         'confirmation',
+        'statut',
+        'contrat_assurance_id',
+        
     ];
 
     protected $casts = [
@@ -30,4 +33,11 @@ class Sinistre extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
+    public function contrat()
+{
+    return $this->belongsTo(ContratAssurance::class, 'contrat_assurance_id');
 }
+
+}
+

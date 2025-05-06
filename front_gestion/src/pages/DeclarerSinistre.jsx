@@ -1,8 +1,10 @@
 import { useState } from "react";
 import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 axios.defaults.withCredentials = true;
+axios.defaults.withXSRFToken = true;
+
 
 export default function DeclarerSinistre() {
   const [police, setPolice] = useState("");
@@ -12,88 +14,45 @@ export default function DeclarerSinistre() {
   const [description, setDescription] = useState("");
   const [montantEstime, setMontantEstime] = useState("");
   const [documents, setDocuments] = useState([]);
-  const [confirmation, setConfirmation] = useState(false);
+  const [confirmation, setConfirmation] = useState(false); 
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   console.log('document: ', documents[0]);
-  //   console.log('document: ', documents[1]);
-  //   console.log('document: ', documents[2]);
-    
-  //   const formData = new FormData();
-  //   formData.append('police', police);
-  //   formData.append('typeIncident', typeIncident);
-  //   formData.append('dateSinistre', dateSinistre);
-  //   formData.append('lieuSinistre', lieuSinistre);
-  //   formData.append('description', description);
-  //   formData.append('montantEstime', montantEstime);
-  //   formData.append("confirmation", confirmation ? "1" : "0");
-    
-  //   // formData.append("documents", documents[0]);
+  const handleFileChange = (e) => {
+    setDocuments([...e.target.files]);
+  };
 
-  //   await axios.post("http://localhost:8000/api/sinistres", formData, {
-  //     headers: {
-  //       "Content-Type": "multipart/form-data",
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   });
-
-  //   documents.forEach((file, i) => {
-  //     formData.append(`documents[]`, file);
-  //   });
-  
-    
-    
-  //   try {
-  //     const response = await axios.post("http://localhost:8000/api/sinistres", formData);
-  //     console.log('Data: ', response.data);
-    
-  
-  //     console.log("Réponse reçue :", response.data);
-  //     alert("Sinistre soumis avec succès !");
-  //   } catch (error) {
-  //     console.error("Erreur lors de la soumission :", error.response?.data || error.message);
-  //     alert("Échec de la soumission du sinistre.");
-  //   }
-  // };
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    const token = localStorage.getItem("token");
     const formData = new FormData();
-    formData.append('police', police);
-    formData.append('typeIncident', typeIncident);
-    formData.append('dateSinistre', dateSinistre);
-    formData.append('lieuSinistre', lieuSinistre);
-    formData.append('description', description);
-    formData.append('montantEstime', montantEstime);
-    formData.append("confirmation", confirmation ? "1" : "0");
-  
+
+    formData.append("police", police);
+    formData.append("type_incident", typeIncident);
+    formData.append("date_sinistre", dateSinistre);
+    formData.append("lieu_sinistre", lieuSinistre);
+    formData.append("description", description);
+    formData.append("montant_estime", montantEstime);
+
     documents.forEach((file) => {
-      formData.append('documents[]', file);
+      formData.append("documents[]", file);
     });
-  
+
     try {
-      const token = localStorage.getItem('token');
-  
-      const response = await axios.post("http://localhost:8000/api/sinistres", formData, {
+      // const res = await api.post("http://localhost:8000/api/sinistres", formData);
+      const res = await axios.post("http://localhost:8000/api/sinistres", formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,  
+          Authorization: `Bearer ${token}`,
+          "Accept": "multipart/form-data",
         },
       });
-  
-      console.log("Réponse reçue :", response.data);
       alert("Sinistre soumis avec succès !");
-    } catch (error) {
-      console.error("Erreur lors de la soumission :", error.response?.data || error.message);
-      alert("Échec de la soumission du sinistre.");
+      console.log(res.data);
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert("Erreur lors de la soumission.");
     }
   };
-  
 
-  
-  
   return (
     <div className="bg-gray-100 min-h-screen p-4 mt-10">
       <div className="bg-white rounded-lg shadow p-4 md:p-6 max-w-2xl mx-auto">
@@ -141,7 +100,6 @@ export default function DeclarerSinistre() {
             </div>
           </div>
 
-          {/* Date du sinistre et Lieu du sinistre (sur la même ligne) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
               <label htmlFor="dateSinistre" className="block text-gray-700 text-xs font-bold mb-1">
@@ -215,9 +173,6 @@ export default function DeclarerSinistre() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                   </svg>
                   <p className="text-xs text-gray-500">Glisser-déposer ou cliquer</p>
-                  {/* <button type="button" className="bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-1 rounded focus:outline-none focus:shadow-outline text-xs mt-2">
-                    Soumettre
-                  </button> */}
                 </div>
                 <input
                   id="file-upload"
@@ -235,12 +190,6 @@ export default function DeclarerSinistre() {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Important Information */}
-          <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-3 py-2 rounded relative text-xs" role="alert">
-            <strong className="font-bold">Important:</strong>
-            <span className="block sm:inline"> Fausse déclaration = Fraude.</span>
           </div>
 
           {/* Confirmation */}

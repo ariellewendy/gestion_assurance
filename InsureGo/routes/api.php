@@ -9,9 +9,6 @@ use App\Http\Controllers\SinistreController;
 use App\Http\Controllers\DashboardAgentController;
 
 
-
-
-
 // Authentification
 Route::post('/token-login', [AuthController::class, 'login']);
 Route::post('/token-register', [AuthController::class, 'register']);
@@ -38,9 +35,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/sinistres/{id}', [SinistreController::class, 'update']);
     Route::delete('/sinistres/{id}', [SinistreController::class, 'destroy']);
 });
+ 
 
-
-//Contrats d'assurance
+//Contrats d'assurance 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/contrats/{id}', [ContratAssuranceController::class, 'show']);
     Route::put('/contrats/{id}', [ContratAssuranceController::class, 'update']);
@@ -48,21 +45,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mes-contrats', [ContratAssuranceController::class, 'mesContrats']);
 
 });
-
-
+ 
+Route::put('/sinistres/{id}/associer-contrat', [SinistreController::class, 'associerContrat']);
 
 // Sinistres
+// Route::post('/sinistres', [SinistreController::class, 'store']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/sinistres', [SinistreController::class, 'store']);
     Route::get('/sinistres', [SinistreController::class, 'index']);
-    Route::get('/sinistres/{id}', [SinistreController::class, 'show']);
+    Route::get('/sinistres/{id}', [SinistreController::class, 'getSinistre']);
+    Route::get('/sinistres-agent', [SinistreController::class, 'getSinistresByAgent']);
+    Route::put('/sinistres/{id}/statut', [SinistreController::class, 'updateStatut']);
+    // Route::put('/sinistres/{id}', [SinistreController::class, 'update']);
+    
 });
-
 
 // Routes réservées à l’agent
 Route::middleware(['auth:sanctum', 'role:agent'])->group(function () {
     Route::post('/contrats', [ContratAssuranceController::class, 'store']);
-    Route::get('/contrats', [ContratAssuranceControaller::class, 'index']);
+    Route::get('/contrats', [ContratAssuranceController::class, 'index']);
 
 });
 Route::middleware(['auth:sanctum'])->get('/dashboard-agent', [DashboardAgentController::class, 'index']);

@@ -14,6 +14,8 @@ import DashboardAgent from './pages/agent/Dashboard_agent';
 import CreateAgentForm from './pages/admin/CreateAgentForm';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
 import ClientsPage from './pages/agent/clentsliste';
+import DetailsSinistre from './pages/agent/DetailsSinistre'; 
+import SinistresAgent from './pages/agent/SinistresAgent';
 const App = () => {
   return (
 <>
@@ -25,15 +27,16 @@ const App = () => {
 <Route path="/Dashboard" element={<Dashboard />} />
 <Route path="/DeclarerSinistre" element={<DeclarerSinistre />} />
 <Route path="/MesPolicesAssurance" element={<MesPolicesAssurance />} />
-<Route path="/DetailsPoliceAssurance" element={<DetailsPoliceAssurance />} />
+<Route path="/DetailsPoliceAssurance/:id" element={<DetailsPoliceAssurance />} />
 <Route path="/ProfilePage" element={<ProfilePage />} />
-{/* <Route path="/contrat/create" element={<ContratForm />} /> */}
 <Route path="/agent/dashboard" element={<DashboardAgent />} />
 <Route path="/CreateAgentForm" element={<CreateAgentForm/>} />
 <Route path="/create-contract/:clientId" element={<ContratForm />} />
 
 <Route path="/admin/dashboard" element={<DashboardAdmin/>} />
-
+<Route path="/sinistres-agent" element={<SinistresAgent />} />
+<Route path="/details-sinistre/:id" element={<DetailsSinistre />} />
+ 
 </Routes>
 </>
 );

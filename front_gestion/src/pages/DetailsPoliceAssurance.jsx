@@ -1,178 +1,217 @@
-import React from 'react';
-import { ArrowLeft, Printer, Download, CheckCircle, XCircle } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ArrowLeft, Printer, Download, CheckCircle, XCircle } from "lucide-react";
 
 export default function DetailsPoliceAssurance() {
-  const garantiesIncluses = [
-    { name: "Responsabilité civile" },
-    { name: "Vol" },
-    { name: "Bris de glace" },
-    { name: "Dommages tous accidents" },
-    { name: "Incendie" },
-  ];
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [contrat, setContrat] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const garantiesNonIncluses = [
-    { name: "Responsabilité civile" },
-    { name: "Vol" },
-    { name: "Bris de glace" },
-  ];
+  // Fonction de récupération des données du contrat
+  const fetchContrat = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`/api/contrats/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setContrat(response.data.data);
+    } catch (err) {
+      setError("Impossible de charger les détails du contrat.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const sinistres = [
-    { numero: "2023-1234-SIN", date: "2023-12-03", description: "Collision avec un autre vehicule a douala-cite de palmier", status: "Expire" },
-  ];
+  // Récupération initiale des données du contrat au chargement du composant
+  useEffect(() => {
+    fetchContrat();
+  }, [id]);
+
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>{error}</div>;
+  if (!contrat) return <div>Contrat introuvable</div>;
+
+  // Récupération des garanties incluses et non incluses
+  let garantiesIncluses = contrat.details?.garanties || [];
+  let garantiesNonIncluses = contrat.details?.garanties_non_incluses || [];
+
+  if (contrat.sinistres && contrat.sinistres.length > 0) {
+    contrat.sinistres.forEach((sinistre) => {
+      if (sinistre.statut === "accepté" && sinistre.type_incident) {
+        if (!garantiesIncluses.includes(sinistre.type_incident)) {
+          garantiesIncluses.push(sinistre.type_incident);
+        }
+      }
+      if (sinistre.statut === "rejeté" && sinistre.type_incident) {
+        if (!garantiesNonIncluses.includes(sinistre.type_incident)) {
+          garantiesNonIncluses.push(sinistre.type_incident);
+        }
+      }
+    });
+  }
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 mt-12">
-      <div className="flex items-center justify-start mb-6">
-          <button className="text-blue-500 flex items-center">
-            <ArrowLeft className="mr-1" size={16} />
-            Retour au police
-          </button>
-        </div>
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow p-6">
-        {/* Header */}
-        <div className="flex items-center justify-start mb-6">
-          <button className="text-blue-500 flex items-center">
-            <ArrowLeft className="mr-1" size={16} />
-            Retour au police
-          </button>
-        </div>
+    <div className="bg-gray-100 min-h-screen p-6 pt-20">
+      {/* Bouton retour */}
+      <button
+        className="flex items-center text-blue-600 mb-4"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft size={18} className="mr-2" />
+        Retour à la liste des polices
+      </button>
 
-        {/* Policy Info */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-semibold">Police-AUT-2023-124</h1>
-          <p className="text-gray-600">AUTO</p>
-        </div>
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow p-6 space-y-6">
+        {/* Informations sur la police */}
+        <section>
+          <h1 className="text-2xl font-bold mb-1">{contrat.numero_police}</h1>
+          <p className="text-gray-600">Type : {contrat.type_assurance?.toUpperCase()}</p>
+        </section>
 
         {/* Actions */}
-        <div className="flex space-x-2 mb-6">
-          <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded flex items-center">
-            <Printer className="mr-1" size={16} />
+        <section className="flex gap-3">
+          <button className="flex items-center bg-gray-100 text-gray-800 px-4 py-2 rounded">
+            <Printer size={16} className="mr-2" />
             Imprimer
           </button>
-          <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded flex items-center">
-            <Download className="mr-1" size={16} />
-            Telecharger le PDF
+          <button className="flex items-center bg-gray-100 text-gray-800 px-4 py-2 rounded">
+            <Download size={16} className="mr-2" />
+            Télécharger PDF
           </button>
           <button className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
             Renouveler
           </button>
-        </div>
+        </section>
 
-        {/* General Information */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">Informations generales</h2>
-            <button className="bg-red-100 text-red-500 px-2 py-1 rounded-full text-xs">Expire</button>
+        {/* Infos générales */}
+        <section className="bg-gray-50 p-4 rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Informations générales</h2>
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${
+                contrat.status === "actif" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+              }`}
+            >
+              {contrat.status}
+            </span>
           </div>
-          <p className="text-gray-700 mb-4">Details de votre police assurance</p>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
             <div>
-              <h3 className="text-sm font-semibold text-gray-700">Type de police</h3>
-              <p>AUTO</p>
+              <p className="font-medium">Type de police</p>
+              <p>{contrat.type_assurance}</p>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-700">Numero de police</h3>
-              <p>AUT-2023-1023</p>
+              <p className="font-medium">Numéro de police</p>
+              <p>{contrat.numero_police}</p>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-700">Date d'effet</h3>
-              <p>2023-01-02</p>
+              <p className="font-medium">Date d'effet</p>
+              <p>{contrat.date_effet}</p>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-700">Date d'expiration</h3>
-              <p>2024-01-14</p>
+              <p className="font-medium">Date d'expiration</p>
+              <p>{contrat.date_expiration}</p>
+            </div>
+            <div>
+              <p className="font-medium">Prime</p>
+              <p>{contrat.prime} FCFA</p>
+            </div>
+            <div>
+              <p className="font-medium">Client</p>
+              <p>{contrat.client?.name} {contrat.client?.prenom}</p>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Garanties */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <section className="bg-gray-50 p-4 rounded-lg">
           <h2 className="text-lg font-semibold mb-3">Garanties</h2>
           <div>
-            <h3 className="text-md font-semibold text-gray-700 mb-2">Incluses</h3>
+            <p className="font-medium text-gray-700 mb-2">Incluses</p>
             <ul className="space-y-2">
-              {garantiesIncluses.map((garantie, index) => (
-                <li key={index} className="flex items-center">
-                  <CheckCircle className="text-green-500 mr-2" size={16} />
-                  <span className="text-gray-700">{garantie.name}</span>
-                </li>
-              ))}
+              {garantiesIncluses.length > 0 ? (
+                garantiesIncluses.map((g, i) => (
+                  <li key={i} className="flex items-center text-sm text-gray-700">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    {g}
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-400">Aucune</li>
+              )}
             </ul>
           </div>
-
           <div className="mt-4">
-            <h3 className="text-md font-semibold text-gray-700 mb-2">Non Incluses</h3>
+            <p className="font-medium text-gray-700 mb-2">Non incluses</p>
             <ul className="space-y-2">
-              {garantiesNonIncluses.map((garantie, index) => (
-                <li key={index} className="flex items-center">
-                  <XCircle className="text-red-500 mr-2" size={16} />
-                  <span className="text-gray-700">{garantie.name}</span>
-                </li>
-              ))}
+              {garantiesNonIncluses.length > 0 ? (
+                garantiesNonIncluses.map((g, i) => (
+                  <li key={i} className="flex items-center text-sm text-gray-700">
+                    <XCircle size={16} className="text-red-500 mr-2" />
+                    {g}
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-400">Aucune</li>
+              )}
             </ul>
           </div>
-        </div>
+        </section>
 
-        {/* Sinistres lies a cette police */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <h2 className="text-lg font-semibold mb-3">Sinistre lies a cette police</h2>
-          {sinistres.map((sinistre, index) => (
-            <div key={index} className="border rounded-md p-3 mb-3">
-              <div className="flex items-baseline justify-between">
-                <h3 className="text-md font-semibold text-gray-700">{sinistre.numero}</h3>
-                <span className="bg-red-100 text-red-500 px-2 py-1 rounded-full text-xs">{sinistre.status}</span>
+        {/* Sinistres */}
+        <section className="bg-gray-50 p-4 rounded-lg">
+          <h2 className="text-lg font-semibold mb-4">Sinistres liés à cette police</h2>
+          {contrat.sinistres && contrat.sinistres.length > 0 ? (
+            contrat.sinistres.map((s, i) => (
+              <div key={i} className="border rounded p-3 mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="text-sm font-semibold text-gray-800">{s.numero}</h3>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      s.statut === "actif" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {s.statut}
+                  </span>
+                </div>
+                <p className="text-gray-600 text-sm">{s.date}</p>
+                <p className="text-gray-700 text-sm">{s.description}</p>
+                <button className="text-blue-500 text-sm mt-2 hover:underline">
+                  Déclarer un sinistre
+                </button>
               </div>
-              <p className="text-gray-600 text-sm">{sinistre.date}</p>
-              <p className="text-gray-700 text-sm">{sinistre.description}</p>
-              <button className="text-blue-500 text-sm mt-2">
-                <span className="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-1">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Declarer un sinistre
-                </span>
-              </button>
-            </div>
-          ))}
-        </div>
+            ))
+          ) : (
+            <p className="text-gray-400">Aucun sinistre lié à cette police.</p>
+          )}
+        </section>
 
-        {/* Conditions generales */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <h2 className="text-lg font-semibold mb-3">Conditions generales</h2>
-          <p className="text-gray-700 text-sm mb-2">conditions generales s'appliquenet au contract signe le 15-03-2023</p>
-          <a href="#" className="text-blue-500 text-sm flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-1">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 011.125-1.125h1.5a5.625 5.625 0 015.625 5.625v2.625a3.375 3.375 0 01-3.375 3.375H3.75a3.375 3.375 0 01-3.375-3.375v-2.625a5.625 5.625 0 015.625-5.625h1.5a1.125 1.125 0 011.125 1.125h-1.5a3.375 3.375 0 00-3.375 3.375v2.625a3.375 3.375 0 003.375 3.375H19.5z" />
-            </svg>
-            Telecharger les conditions generales (PDF)
+        {/* Conditions générales */}
+        <section className="bg-gray-50 p-4 rounded-lg">
+          <h2 className="text-lg font-semibold mb-2">Conditions générales</h2>
+          <p className="text-sm text-gray-700 mb-2">
+            Les conditions générales s'appliquent au contrat signé le {contrat.date_effet}.
+          </p>
+          <a href="#" className="text-blue-500 text-sm hover:underline">
+            Télécharger les conditions générales (PDF)
           </a>
-        </div>
+        </section>
 
         {/* Documents */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h2 className="text-lg font-semibold mb-3">Documents</h2>
-          <ul>
-            <li className="text-blue-500 text-sm flex items-center mb-1">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 011.125-1.125h1.5a5.625 5.625 0 015.625 5.625v2.625a3.375 3.375 0 01-3.375 3.375H3.75a3.375 3.375 0 01-3.375-3.375v-2.625a5.625 5.625 0 015.625-5.625h1.5a1.125 1.125 0 011.125 1.125h-1.5a3.375 3.375 0 00-3.375 3.375v2.625a3.375 3.375 0 003.375 3.375H19.5z" />
-              </svg>
-              Attestation d'assurances
-            </li>
-            <li className="text-blue-500 text-sm flex items-center mb-1">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 011.125-1.125h1.5a5.625 5.625 0 015.625 5.625v2.625a3.375 3.375 0 01-3.375 3.375H3.75a3.375 3.375 0 01-3.375-3.375v-2.625a5.625 5.625 0 015.625-5.625h1.5a1.125 1.125 0 011.125 1.125h-1.5a3.375 3.375 0 00-3.375 3.375v2.625a3.375 3.375 0 003.375 3.375H19.5z" />
-              </svg>
-              Contract complet
-            </li>
-            <li className="text-blue-500 text-sm flex items-center mb-1">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 011.125-1.125h1.5a5.625 5.625 0 015.625 5.625v2.625a3.375 3.375 0 01-3.375 3.375H3.75a3.375 3.375 0 01-3.375-3.375v-2.625a5.625 5.625 0 015.625-5.625h1.5a1.125 1.125 0 011.125 1.125h-1.5a3.375 3.375 0 00-3.375 3.375v2.625a3.375 3.375 0 003.375 3.375H19.5z" />
-              </svg>
-              Facture derniere echeance
+        <section className="bg-gray-50 p-4 rounded-lg">
+          <h2 className="text-lg font-semibold mb-2">Documents</h2>
+          <ul className="space-y-1 text-sm text-blue-500">
+            <li>
+              <a href={contrat.document} download>
+                Télécharger le contrat d'assurance
+              </a>
             </li>
           </ul>
-        </div>
+        </section>
       </div>
     </div>
   );

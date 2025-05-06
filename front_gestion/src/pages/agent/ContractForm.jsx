@@ -1,126 +1,128 @@
-    import React, { useState, useEffect } from 'react';
-    import axios from 'axios';
-    import { useParams, useNavigate } from 'react-router-dom';
-    
-    const ContratForm = () => {
-        const { clientId } = useParams(); 
-        const [formData, setFormData] = useState({
-            type_assurance: '',
-            date_effet: '',
-            date_expiration: '',
-            description: '',
-            prime: '',
-            client_id: clientId ,
-        });
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
-        const [error, setError] = useState('');
-        const navigate = useNavigate();
-    
-        useEffect(() => {
-            const fetchCsrfToken = async () => {
-                try {
-                    const response = await axios.get('http://localhost:8000/sanctum/csrf-cookie');
-                } catch (error) {
-                    console.error('Erreur lors de la récupération du jeton CSRF:', error);
-                }
-            };
-    
-            fetchCsrfToken();
-        }, []);
-    
-        const handleChange = (e) => {
-            setFormData({ ...formData, [e.target.name]: e.target.value });
-        };
-    
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem("token");
-    
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            try {
-                await axios.get('http://localhost:8000/sanctum/csrf-cookie', { withCredentials: true });
-                const response = await axios.post('http://localhost:8000/api/contrats', formData, { withCredentials: true });
-                
-                console.log('Réponse du serveur:', response.data);
-                navigate('/Dashboard_agent');
-            } catch (error) {
-                console.error('Détails de l\'erreur:', error);
-                setError(error.response?.data?.message || 'Erreur lors de la création du contrat.');
-            }
-        };
+axios.defaults.withCredentials = true;
 
+const ContratForm = () => {
+    const { clientId } = useParams(); 
+    const navigate = useNavigate();
+
+    const [formData, setFormData] = useState({
+        type_assurance: '',
+        date_effet: '',
+        date_expiration: '',
+        description: '',
+        prime: '',
+        client_id: clientId,
+    });
+
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        axios.get('http://localhost:8000/sanctum/csrf-cookie')
+            .catch(err => console.error("Erreur CSRF", err));
+    }, []);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem("token");
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        try {
+            const res = await axios.post('http://localhost:8000/api/contrats', formData);
+            console.log('Contrat créé :', res.data);
+            navigate('/Dashboard_agent');
+        } catch (err) {
+            console.error('Erreur de soumission :', err.response?.data);
+            setError(err.response?.data?.message || 'Erreur lors de la création du contrat.');
+        }
+    };
 
     return (
-        <div className="max-w-3xl mx-auto p-4 space-y-6">
-            <h1 className="text-2xl font-bold">Créer un contrat d'assurance</h1>
+        <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
+            <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">Créer un contrat d'assurance</h1>
+
             {error && (
-                <div className="mb-4 text-sm text-red-600 bg-red-100 px-4 py-2 rounded">
+                <div className="text-red-700 bg-red-100 border border-red-400 px-4 py-3 rounded mb-4">
                     {error}
                 </div>
             )}
-            <form onSubmit={handleSubmit} className="space-y-4">
 
-              
+            <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                    <label htmlFor="type_assurance" className="block text-sm font-medium text-gray-700">Type d'assurance</label>
+                    <label htmlFor="type_assurance" className="block font-medium mb-1">Type d'assurance</label>
                     <select
                         name="type_assurance"
-                        id="type_assurance"
                         onChange={handleChange}
+                        value={formData.type_assurance}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                        <option value="">Sélectionner un type</option>
+                        <option value="">Sélectionner</option>
                         <option value="auto">Auto</option>
                         <option value="habitation">Habitation</option>
                         <option value="sante">Santé</option>
                     </select>
                 </div>
+
                 <div>
-                    <label htmlFor="date_effet" className="block text-sm font-medium text-gray-700">Date d'effet</label>
+                    <label htmlFor="date_effet" className="block font-medium mb-1">Date d'effet</label>
                     <input
                         type="date"
                         name="date_effet"
-                        id="date_effet"
                         onChange={handleChange}
+                        value={formData.date_effet}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
+
                 <div>
-                    <label htmlFor="date_expiration" className="block text-sm font-medium text-gray-700">Date d'expiration</label>
+                    <label htmlFor="date_expiration" className="block font-medium mb-1">Date d'expiration</label>
                     <input
                         type="date"
                         name="date_expiration"
-                        id="date_expiration"
                         onChange={handleChange}
+                        value={formData.date_expiration}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
+
                 <div>
-                    <label htmlFor="prime" className="block text-sm font-medium text-gray-700">Prime</label>
+                    <label htmlFor="description" className="block font-medium mb-1">Description</label>
+                    <textarea
+                        name="description"
+                        onChange={handleChange}
+                        value={formData.description}
+                        rows="3"
+                        className="w-full border border-gray-300 rounded px-4 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    ></textarea>
+                </div>
+
+                <div>
+                    <label htmlFor="prime" className="block font-medium mb-1">Prime</label>
                     <input
                         type="number"
                         name="prime"
-                        id="prime"
                         onChange={handleChange}
+                        value={formData.prime}
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
-                <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea
-                        name="description"
-                        id="description"
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                </div>
-                <div>
-                    <button type="submit" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Créer
+
+                <div className="text-center">
+                    <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition duration-300"
+                    >
+                        Créer le contrat
                     </button>
                 </div>
             </form>

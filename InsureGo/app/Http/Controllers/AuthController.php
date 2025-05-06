@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -13,7 +14,7 @@ class AuthController extends Controller
     {
         
         // Validation des champs du formulaire
-        $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
@@ -26,6 +27,9 @@ class AuthController extends Controller
             throw ValidationException::withMessages([
                 'email' => ['Les identifiants sont invalides.'],
             ]);
+        }
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
         }
 
         if (!in_array($user->role, ['client', 'agent', 'admin'])) {

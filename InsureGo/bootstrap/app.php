@@ -4,7 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-
+ 
 
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -18,26 +18,19 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
-        
+
+        // $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
+
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
-        ]);
-        /*
-            $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
-            
-           
-
-            
-            $middleware->api([
-                // Middleware pour CORS
-                \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-                \Illuminate\Http\Middleware\HandleCors::class,
-                \Illuminate\Routing\Middleware\ThrottleRequests::class,
-                \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            ]);
-        */
-        
+        ]);  
     })
+
+
+
+
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+
+    
