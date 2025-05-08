@@ -73,22 +73,6 @@ class SinistreController extends Controller
 
 
 
-    // public function associerContrat(Request $request, $sinistreId)
-    // {
-    //     $request->validate([
-    //         'contrat_id' => 'required|exists:contrats,id',
-    //     ]);
-    
-    //     $sinistre = Sinistre::findOrFail($sinistreId);
-    //     $sinistre->contrat_id = $request->contrat_id;
-    //     $sinistre->save();
-    
-    //     return response()->json([
-    //         'message' => 'Contrat associé avec succès au sinistre.',
-    //         'sinistre' => $sinistre
-    //     ], 200);
-    // }
-
     public function store(Request $request)
     {
         $validated = $request->validate([

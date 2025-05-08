@@ -6,6 +6,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [form, setForm] = useState({ name: '', prenom: '', email: '' });
   const [passwordForm, setPasswordForm] = useState({ current_password: '', new_password: '' });
+  const [photoPreview, setPhotoPreview] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export default function ProfilePage() {
       .then(res => {
         setUser(res.data);
         setForm({ name: res.data.name, prenom: res.data.prenom, email: res.data.email });
+        setPhotoPreview(null); // Reset preview pour afficher la vraie photo du serveur
       })
       .catch(() => {
         localStorage.removeItem('token');
@@ -39,6 +41,8 @@ export default function ProfilePage() {
   };
   const handlePhotoUpload = e => {
     const file = e.target.files[0];
+    if (!file) return;
+    setPhotoPreview(URL.createObjectURL(file)); // preview locale
     const formData = new FormData();
     formData.append('photo', file);
     axios.post('http://localhost:8000/api/user/upload-photo', formData, {
@@ -46,21 +50,63 @@ export default function ProfilePage() {
     }).then(res => {
       alert(res.data.message);
       setUser(prev => ({ ...prev, profile_photo_path: res.data.photo_url }));
+      setPhotoPreview(null); // On repasse sur l’URL serveur
     });
   };
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-      }}>
-      <div className=" w-full max-w-4xl h-[550px] flex rounded-3xl overflow-hidden shadow-2xl">
+    <>
+      {/* Navbar moderne et transparente */}
+      <nav className="fixed top-0 left-0 w-full z-40 bg-white/70 backdrop-blur shadow-sm h-14 flex items-center px-8 justify-between">
+        <div className="flex items-center">
+          <span
+            className="w-8 h-8 flex items-center justify-center rounded-xl font-bold text-white mr-2 text-base"
+            style={{
+              background: 'linear-gradient(135deg, #e66465 0%, #6c63ff 50%, #42a5f5 100%)'
+            }}
+          >
+            IG
+          </span>
+          <span className="font-semibold text-gray-800 text-lg">InsureGo</span>
+        </div>
+        <button
+          className="flex items-center gap-1 text-blue-700 text-sm font-medium bg-transparent px-2 py-1 rounded-md transition hover:bg-blue-50 hover:text-blue-900 focus:outline-none"
+          onClick={() => navigate("/Dashboard")}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7m-9 2v8m4-8v8m-4 0h4" /></svg>
+          Mon espace
+        </button>
+      </nav>
+      <div
+        className="min-h-screen w-full flex items-center justify-center pt-20" // pt-20 pour ne pas masquer le contenu sous la navbar
+        style={{ background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' }}
+      >
+        <div className=" w-full max-w-4xl h-[550px] flex rounded-3xl overflow-hidden shadow-2xl">
         <div className="w-1/3 bg-white/30 backdrop-blur-lg flex flex-col items-center py-10 px-4 space-y-6">
-          <img
-            src={user?.profile_photo_path || 'https://via.placeholder.com/150'}
-            alt="profil"
-            className="w-24 h-24 rounded-full object-cover border-4 border-white/60 shadow-md"
-          />
-          <input type="file" onChange={handlePhotoUpload} className="my-2" />
+          <label htmlFor="profile-photo-upload" className="cursor-pointer group relative">
+            {photoPreview || user?.profile_photo_path ? (
+              <img
+                src={photoPreview || user?.profile_photo_path}
+                alt="profil"
+                className="w-24 h-24 rounded-full object-cover border-4 border-white/60 shadow-md group-hover:opacity-80 transition"
+              />
+            ) : (
+              <div className="w-24 h-24 flex items-center justify-center rounded-full bg-gray-200 border-4 border-white/60 shadow-md group-hover:bg-gray-300 transition">
+                {/* Icône galerie SVG */}
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm3 14l3.293-3.293a1 1 0 011.414 0L17 19M13 13l2-2a1 1 0 011.414 0L21 17" />
+                </svg>
+              </div>
+            )}
+            <input
+              id="profile-photo-upload"
+              type="file"
+              onChange={handlePhotoUpload}
+              className="hidden"
+              accept="image/*"
+            />
+          </label>
+
           <div className="text-center">
             <h2 className="text-lg font-bold text-gray-800">{user?.name} {user?.prenom}</h2>
             <p className="text-sm text-gray-600">{user?.email}</p>
@@ -107,5 +153,6 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

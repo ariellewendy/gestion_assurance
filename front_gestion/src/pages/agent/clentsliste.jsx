@@ -12,7 +12,7 @@ const ClientsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(true);  // Add sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(true);  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,9 +29,10 @@ const ClientsPage = () => {
         setFilteredClients(response.data);
       } catch (err) {
         setError("Impossible de récupérer les clients.");
-      } finally {
-        setLoading(false);
       }
+      //  finally {
+      //   setLoading(false);
+      // }
     };
 
     fetchClients();
@@ -48,8 +49,8 @@ const ClientsPage = () => {
     }
   }, [searchTerm, clients]);
 
-  if (loading) return <div>Chargement...</div>;
-  if (error) return <div>{error}</div>;
+  // if (loading) return <div>Chargement...</div>;
+  // if (error) return <div>{error}</div>;
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-100/80 via-white/70 to-pink-50/80">
@@ -72,28 +73,50 @@ const ClientsPage = () => {
          
 
           {/* Tableau des clients */}
-          <table className="min-w-full text-sm text-gray-700">
-              <thead className="bg-gray-50/80">
+          <table className="w-full text-sm text-left text-gray-600">
+              <thead className="text-xs text-gray-700 bg-blue-50/50 border-b border-blue-100/50">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Nom</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Email</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Actions</th>
+                  <th scope="col" className="px-6 py-3 font-semibold">NOM</th>
+                  <th scope="col" className="px-6 py-3 font-semibold">EMAIL</th>
+                  <th scope="col" className="px-6 py-3 font-semibold">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredClients.length > 0 ? (
                   filteredClients.map((client, index) => (
-                    <tr key={client.id} className={`border-b ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}>
-                      <td className="px-4 py-3">{client.name}</td>
-                      <td className="px-4 py-3">{client.email}</td>
-                      <td className="px-4 py-3">
-                        <a href={`/create-contract/${client.id}`} className="text-green-600 hover:underline ml-4">Créer un contrat</a>
+                    <tr 
+                      key={client.id} 
+                      className={`
+                        ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'} 
+                        hover:bg-blue-100/20 
+                        transition-colors 
+                        duration-200
+                        border-b border-blue-100/30
+                      `}
+                    >
+                      <td className="px-6 py-4">{client.name}</td>
+                      <td className="px-6 py-4">{client.email}</td>
+                      <td className="px-6 py-4">
+                        <a 
+                          href={`/create-contract/${client.id}`} 
+                          className={`
+                            text-green-600 
+                            hover:text-green-900 
+                            transition-colors 
+                            duration-200 
+                            rounded-full 
+                            p-1 
+                            hover:bg-green-100
+                          `}
+                        >
+                          Créer un contrat
+                        </a>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="3" className="px-4 py-4 text-center text-gray-500">Aucun client trouvé.</td>
+                    <td colSpan="3" className="px-6 py-4 text-center text-gray-500 bg-blue-50/30">Aucun client trouvé.</td>
                   </tr>
                 )}
               </tbody>

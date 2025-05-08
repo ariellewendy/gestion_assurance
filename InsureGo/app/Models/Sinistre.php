@@ -17,7 +17,7 @@ class Sinistre extends Model
         'description',
         'montant_estime',
         'documents',
-        'confirmation',
+        'confirmation',   
         'statut',
         'contrat_assurance_id',
         

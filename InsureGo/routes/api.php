@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuthController; 
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ContratAssuranceController;
@@ -19,7 +19,7 @@ Route::get('/test-csrf', function () {
 });
 
 
-// Infos utilisateur connecté (authentifié)
+// Infos utilisateur connecté (authentifié) 
 Route::middleware('auth:sanctum')->group(function(){
      Route::get('/user', [UserController::class, 'me']);
      Route::put('/user/profile', [UserController::class, 'update']);

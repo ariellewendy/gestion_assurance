@@ -47,6 +47,14 @@ return [
             'report' => false,
         ],
 
+        
+        'documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/sinistres/documents'),
+            'url' => env('APP_URL').'/storage/sinistres/documents',
+            'visibility' => 'public',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -30,38 +30,7 @@ const Connexion = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     try {
-    //         const response = await api.post('http://localhost:8000/api/token-login', formData);
-    //         console.log('Réponse du serveur:', response.data);
-    //         localStorage.setItem('token', response.data.token);
-
-    //         localStorage.setItem('role', response.data.role);
-
-
-
-    // const role = response.data.role;
-
-    // if (user.role === 'admin') {
-    //     navigate('admin/dashboard');
-    //   } else if (user.role === 'agent') {
-    //     navigate('/agent/dashboard');
-    //   } else if (user.role === 'client') {
-    //     navigate('/client/dashboard');
-    //   } else {
-    //     console.error('Rôle non reconnu');
-    //   }
-
-
-
-    //       } catch (error) {
-    //         setError(error.response?.data?.message || 'Erreur lors de la connexion.');
-    //     }
-      
-    // };
-
-
+   
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {

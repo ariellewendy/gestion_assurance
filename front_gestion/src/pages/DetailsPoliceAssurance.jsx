@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ArrowLeft, Printer, Download, CheckCircle, XCircle } from "lucide-react";
+import Navbar from "../components/Navbar";
 
 export default function DetailsPoliceAssurance() {
   const { id } = useParams();
@@ -55,14 +56,18 @@ export default function DetailsPoliceAssurance() {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6 pt-20">
-      {/* Bouton retour */}
+    <div className="bg-gray-100 min-h-screen">
+      <Navbar />
+      <div className="max-w-6xl mx-auto p-6 pt-24">
+      {/* Lien retour flottant */}
       <button
-        className="flex items-center text-blue-600 mb-4"
-        onClick={() => navigate(-1)}
+        className="fixed top-20 left-4 z-40 flex items-center gap-1 bg-white text-blue-600 font-medium shadow rounded-full px-2 py-1 text-xs hover:bg-blue-50 hover:text-blue-800 transition border border-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-200"
+        style={{ minWidth: 'fit-content' }}
+        onClick={() => navigate('/agent/dashboard')}
+        aria-label="Back"
       >
-        <ArrowLeft size={18} className="mr-2" />
-        Retour à la liste des polices
+        <ArrowLeft size={14} />
+        Back
       </button>
 
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow p-6 space-y-6">
@@ -207,12 +212,13 @@ export default function DetailsPoliceAssurance() {
           <ul className="space-y-1 text-sm text-blue-500">
             <li>
               <a href={contrat.document} download>
-                Télécharger le contrat d'assurance
-              </a>
-            </li>
-          </ul>
-        </section>
-      </div>
-    </div>
-  );
+  Télécharger le contrat d'assurance
+</a>
+</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+);
 }

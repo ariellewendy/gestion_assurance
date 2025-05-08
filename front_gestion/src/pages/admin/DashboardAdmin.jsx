@@ -9,6 +9,7 @@ import {
   Calendar,
   Home,
   User,
+  Users,
   Settings,
   BarChart2,
   Menu,
@@ -58,7 +59,11 @@ export default function DashboardAdmin() {
             <a href="/CreateAgentForm" className="flex items-center p-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all">
                 <UserPlus size={20} /> {sidebarOpen && <span className="ml-3">Ajouter un agent</span>}
           </a>
-          
+           
+           <a href="/admin/clients" className="flex items-center p-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                <Users size={20} /> {sidebarOpen && <span className="ml-3">Clients</span>}
+           </a>
+           
             <a href="#" className="flex items-center p-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             ><Settings size={20} />{sidebarOpen && <span className="ml-3">Paramètres</span>}
             </a>
@@ -119,7 +124,7 @@ export default function DashboardAdmin() {
 
               <div className="flex items-center">
                 <div className="h-9 w-9 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
-                  M
+                  A
                 </div>
               </div>
             </div>
@@ -225,88 +230,7 @@ export default function DashboardAdmin() {
             </div>
           </section>
 
-          {/* Tableau Mes Clients */}
-          <section className="bg-white/70 backdrop-blur-md border border-gray-100/50 rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Mes Clients</h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm text-gray-700">
-                <thead>
-                  <tr className="bg-gray-50/80">
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Nom</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Email</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Téléphone</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Nombre de Polices</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Statut</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="px-4 py-3">Jean Dupont</td>
-                    <td className="px-4 py-3">jean.dupont@email.com</td>
-                    <td className="px-4 py-3">06 12 34 56 78</td>
-                    <td className="px-4 py-3">2</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-block px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs">
-                        Actif
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 space-x-2">
-                      <button className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition">
-                        Voir les détails
-                      </button>
-                      <button className="bg-green-50 text-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 transition">
-                        Ajouter une police
-                      </button>
-                    </td>
-                  </tr>
-                  <tr className="bg-gray-50/50 border-b">
-                    <td className="px-4 py-3">Marie Claire</td>
-                    <td className="px-4 py-3">marie.claire@email.com</td>
-                    <td className="px-4 py-3">06 98 76 54 32</td>
-                    <td className="px-4 py-3">1</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-block px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs">
-                        À renouveler
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 space-x-2">
-                      <button className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition">
-                        Voir les détails
-                      </button>
-                      <button className="bg-green-50 text-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 transition">
-                        Ajouter une police
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3">Paul Martin</td>
-                    <td className="px-4 py-3">paul.martin@email.com</td>
-                    <td className="px-4 py-3">07 11 22 33 44</td>
-                    <td className="px-4 py-3">3</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-block px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs">
-                        Inactif
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 space-x-2">
-                      <button className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition">
-                        Voir les détails
-                      </button>
-                      <button className="bg-green-50 text-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 transition">
-                        Ajouter une police
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="mt-4">
-              <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
-                Voir tous les clients
-              </button>
-            </div>
-          </section>
+      
         </main>
       </div>
     </div>

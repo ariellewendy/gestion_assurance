@@ -87,33 +87,43 @@ const DashboardAgent = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
 
-            <table className="min-w-full text-sm text-gray-700">
-              <thead className="bg-gray-50/80">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">TYPE</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">NUMÉRO DE POLICE</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">DATE D'EFFET</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">DATE D'EXPIRATION</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">ACTIONS</th>
+            <table className="w-full text-sm text-left text-gray-600">
+              <thead className="text-xs text-gray-700 bg-blue-50/50">
+                <tr className="border-b border-blue-100/50">
+                  <th scope="col" className="px-6 py-3 font-semibold">TYPE</th>
+                  <th scope="col" className="px-6 py-3 font-semibold">NUMÉRO DE POLICE</th>
+                  <th scope="col" className="px-6 py-3 font-semibold">DATE D'EFFET</th>
+                  <th scope="col" className="px-6 py-3 font-semibold">DATE D'EXPIRATION</th>
+                  <th scope="col" className="px-6 py-3 font-semibold">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredPolices.length > 0 ? (
                   filteredPolices.map((police, index) => (
-                    <tr key={index} className={`border-b ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}>
-                      <td className="px-4 py-3">{police.type_assurance}</td>
-                      <td className="px-4 py-3">{police.numero_police}</td>
-                      <td className="px-4 py-3">{new Date(police.date_effet).toLocaleDateString("fr-FR")}</td>
-                      <td className="px-4 py-3">{new Date(police.date_expiration).toLocaleDateString("fr-FR")}</td>
-                      <td className="px-4 py-3">
-                      <Link to={`/DetailsPoliceAssurance/${police.id}`} className="text-blue-600 hover:underline">Voir</Link>
-                        {/* <a href={`/DetailsPoliceAssurance/${police.id}`} className="text-blue-600 hover:underline">Voir</a> */}
+                    <tr 
+                      key={index} 
+                      className={`
+                        ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'} 
+                        hover:bg-blue-100/20 
+                        transition-colors 
+                        duration-200
+                        border-b border-blue-100/30
+                      `}
+                    >
+                      <td className="px-6 py-4">{police.type_assurance}</td>
+                      <td className="px-6 py-4">{police.numero_police}</td>
+                      <td className="px-6 py-4">{new Date(police.date_effet).toLocaleDateString("fr-FR")}</td>
+                      <td className="px-6 py-4">{new Date(police.date_expiration).toLocaleDateString("fr-FR")}</td>
+                      <td className="px-6 py-4 flex space-x-2">
+                        <Link to={`/DetailsPoliceAssurance/${police.id}`} className="text-blue-600 hover:text-blue-900 transition-colors duration-200 rounded-full p-1 hover:bg-blue-100">
+                          Voir
+                        </Link>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="px-4 py-4 text-center text-gray-500">Aucune police trouvée.</td>
+                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">Aucune police trouvée.</td>
                   </tr>
                 )}
               </tbody>
